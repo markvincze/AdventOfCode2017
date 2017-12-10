@@ -45,14 +45,13 @@ procTimes array inputArray 0 0 64
 
 let densify array =
     let rec densifyRec (array : int[]) pos acc =
-        if pos < array.Length - 1
+        if pos > 0
         then
-            let xor = array.[pos] ^^^ array.[pos + 1] ^^^ array.[pos + 2] ^^^ array.[pos + 3] ^^^ array.[pos + 4] ^^^ array.[pos + 5] ^^^ array.[pos + 6] ^^^ array.[pos + 7] ^^^ array.[pos + 8] ^^^ array.[pos + 9] ^^^ array.[pos + 10] ^^^ array.[pos + 11] ^^^ array.[pos + 12] ^^^ array.[pos + 13] ^^^ array.[pos + 14] ^^^ array.[pos + 15]
-            densifyRec array (pos + 16) (xor :: acc)
+            let xor = array.[pos] ^^^ array.[pos - 1] ^^^ array.[pos - 2] ^^^ array.[pos - 3] ^^^ array.[pos - 4] ^^^ array.[pos - 5] ^^^ array.[pos - 6] ^^^ array.[pos - 7] ^^^ array.[pos - 8] ^^^ array.[pos - 9] ^^^ array.[pos - 10] ^^^ array.[pos - 11] ^^^ array.[pos - 12] ^^^ array.[pos - 13] ^^^ array.[pos - 14] ^^^ array.[pos - 15]
+            densifyRec array (pos - 16) (xor :: acc)
         else acc
     
-    densifyRec array 0 []
-    |> List.rev
+    densifyRec array (array.Length - 1) []
 
 let dense = densify array
 
