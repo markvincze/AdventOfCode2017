@@ -1,4 +1,3 @@
-open System
 open System.Text
 
 let array = [| 0 .. 255 |]
