@@ -65,14 +65,8 @@ let rec tripTail length state acc =
 
         tripTail length newState (severity + acc)
 
-// tripTail firewallLength initial 0 |> printfn "The severity of the whole trip: %d"
-// let layersCache = new System.Collections.Generic.Dictionary<int, Map<int, Layer>>()
-// let layersCache = new System.Collections.Generic.List<Map<int, Layer>>()
-// layersCache.Add(initial.Layers)
-
-// let layersCache = Array.empty<Map<int, Layer>>
 let runLimit = 10000000
-// let layersCache = Array.zeroCreate<Map<int, Layer>> (runLimit * 2)
+
 let layersCache = new System.Collections.Generic.List<Map<int, Layer>>(runLimit + 100)
 layersCache.Add(initial.Layers)
 
@@ -102,21 +96,6 @@ let rec tripCheck length state time =
             let newState = {
                 PacketIndex = state.PacketIndex + 1
                 Layers = layersCache.[time + 1]
-                        //  if layersCache.Count > time + 1
-                        //  then layersCache.[time + 1]
-                        //  else let nextLayers = state.Layers
-                        //                        |> Map.map (fun _ layer -> moveScanner layer)
-                        //       layersCache.Add(nextLayers)
-                        //       nextLayers
-                        //  let cached = layersCache.[time + 1]
-                        //  if cached <> Unchecked.defaultof<Map<int, Layer>>
-                        //  then cached
-                        //  else let nextLayers = state.Layers
-                        //                        |> Map.map (fun _ layer -> moveScanner layer)
-                        //       layersCache.[time + 1] <- nextLayers
-                        //       nextLayers
-
-
             }
 
             tripCheck length newState (time + 1)
@@ -138,14 +117,7 @@ let rec findSol delay =
         then delay
         else findSol (delay + 1)
 
-
-// let initial = {
-//     Layers =     
-// }
-
-
 [<EntryPoint>]
 let main argv =
-    printfn "Hello World from F#!"
     findSol 0 |> printfn "Result: %d"
     0 // return an integer exit code
