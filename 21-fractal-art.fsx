@@ -37,22 +37,15 @@ let image = [| [| false; true; false |]
                [| false; false; true |]
                [| true; true; true |] |]
 
-// Returns the square area in image with width s starting from (x,y) as its top-left corner.
-let carve (image : Image) y x s =
-    printfn "Carve called."
-    printfn "image: %A" image
-    printfn "y: %d, x: %d, s: %d" y x s
-    [|
-        for i in y..(y + s - 1)
-            -> [| for j in x..(x + s - 1) -> image.[i].[j] |]
-    |]
-
+// Rotations and flips at size 2
 // ab     ca     dc     bd
 // cd     db     ba     ac
 // ab/cd  ca/db  dc/ba  bd/ac
 // cd     db     ba     ac
 // ab     ca     dc     bd
 // cd/ab  db/ca  ba/dc  ac/bd
+
+// Rotation at size 3
 // abc gda
 // def heb
 // ghj jfc
@@ -74,64 +67,94 @@ let flipv (img : Image) =
     then [| img.[2]; img.[1]; img.[0] |]
     else failwith "Invalid array length"
 
-let ruleMatches (image : Image) y x s rule =
+// Returns the square area in image with width s starting from (x,y) as its top-left corner.
+let carve (image : Image) y x s =
+    [|
+        for i in y..(y + s - 1)
+            -> [| for j in x..(x + s - 1) -> image.[i].[j] |]
+    |]
+
+let matchingRule (image : Image) rules y x s =
     let rot0 = carve image y x s
     let rot1 = rot rot0
     let rot2 = rot rot1
     let rot3 = rot rot2
 
     // Try all rotation and flips
-    [ rot0; rot1; rot2; rot3; flipv rot0; flipv rot1; flipv rot2; flipv rot3]
-    |> List.exists (fun i -> i = rule.Input)
+    let variations = [| rot0; rot1; rot2; rot3; flipv rot0; flipv rot1; flipv rot2; flipv rot3 |]
 
-let fill2 (image : Image) rules y x (newImage : Image) =
-    let rule = rules
-               |> Array.filter (fun r -> Array.length r.Input = 2)
-               |> Array.find (ruleMatches image y x 2)
+    rules
+    |> Array.filter (fun r -> Array.length r.Input = s)
+    |> Array.find (fun r -> Array.exists (fun v -> v = r.Input) variations)
+
+let fill (image : Image) rules y x s (newImage : Image) =
+    let rule = matchingRule image rules y x s
     
-    for i = (y + y / 2) to (y + y / 2) + 2 do
-        for j = (x + x / 2) to (x + x / 2) + 2 do
-            newImage.[i].[j] <- rule.Output.[i - (y + y / 2)].[j - (x + x / 2)]
-
-let fill3 (image : Image) rules y x (newImage : Image) =
-    let rule = rules
-               |> Array.filter (fun r -> Array.length r.Input = 3)
-               |> Array.find (ruleMatches image y x 3)
-    
-    for i = (y + y / 3) to (y + y / 3) + 3 do
-        for j = (x + x / 3) to (x + x / 3) + 3 do
-            newImage.[i].[j] <- rule.Output.[i - (y + y / 3)].[j - (x + x / 3)]
-
-let grow2 rules image =
-    let newImageSize = (Array.length image) + ((Array.length image) / 2)
-    let newImage = Array.init newImageSize (fun _ -> Array.create newImageSize false)
-
-    for y = 0 to (Array.length image) / 2 - 1 do
-        for x = 0 to (Array.length image) / 2 - 1 do
-            fill2 image rules (y * 2) (x * 2) newImage
-    
-    newImage
-
-let grow3 rules image =
-    let newImageSize = (Array.length image) + ((Array.length image) / 3)
-    let newImage = Array.init newImageSize (fun _ -> Array.create newImageSize false)
-
-    for y = 0 to (Array.length image) / 3 - 1 do
-        for x = 0 to (Array.length image) / 3 - 1 do
-            fill3 image rules (y * 3) (x * 3) newImage
-    
-    newImage
+    for i = (y + y / s) to (y + y / s) + s do
+        for j = (x + x / s) to (x + x / s) + s do
+            newImage.[i].[j] <- rule.Output.[i - (y + y / s)].[j - (x + x / s)]
 
 let grow rules image =
-    if (Array.length image) % 2 = 0
-    then grow2 rules image
-    else grow3 rules image
+    let s = if (Array.length image) % 2 = 0
+            then 2
+            else 3
+
+    let newImageSize = (Array.length image) + ((Array.length image) / s)
+    let newImage = Array.init newImageSize (fun _ -> Array.create newImageSize false)
+
+    for y = 0 to (Array.length image) / s - 1 do
+        for x = 0 to (Array.length image) / s - 1 do
+            fill image rules (y * s) (x * s) s newImage
+    
+    newImage
 
 [<EntryPoint>]
 let main argv =
     try
-        let image2 = grow rules image
-        printfn "New image: %A" image2
+        let after5 =
+            image
+            |> grow rules
+            |> grow rules
+            |> grow rules
+            |> grow rules
+            |> grow rules
+        
+        printfn "Final image:\r\n%A" after5
+
+        after5
+        |> Array.sumBy (fun l -> Seq.filter (fun p -> p) l |> Seq.length)
+        |> printfn "Number of pixels \"on\": %d"
+        
+        let sw = System.Diagnostics.Stopwatch.StartNew()
+
+        let after18 =
+            image
+            |> grow rules
+            |> grow rules
+            |> grow rules
+            |> grow rules
+            |> grow rules
+            |> grow rules
+            |> grow rules
+            |> grow rules
+            |> grow rules
+            |> grow rules
+            |> grow rules
+            |> grow rules
+            |> grow rules
+            |> grow rules
+            |> grow rules
+            |> grow rules
+            |> grow rules
+            |> grow rules
+        
+        sw.Stop()
+
+        after18
+        |> Array.sumBy (fun l -> Seq.filter (fun p -> p) l |> Seq.length)
+        |> printfn "Number of pixels \"on\": %d"
+        
+        printfn "Elapsed: %s" (sw.Elapsed.ToString())
     with
         | ex -> printfn "Exception: %s" (ex.ToString())
     0
