@@ -1,0 +1,30 @@
+start: set b 105700
+       set c 122700
+
+main:  set f 1
+       set d 2
+
+main2: set e 2
+
+main3: set g d
+       mul g e
+       sub g b
+       if (g == 0) set f 0
+       inc e 1
+       set g e
+       sub g b
+       if (g != 0) jump main3
+
+       inc d 1
+       set g d
+       sub g b
+       if (g != 0) jump main2
+
+       if (f == 0) inc h 1
+       set g b
+       sub g c
+       if (g != 0) jump incB
+       exit()
+
+incB:  inc b 17
+       jump main

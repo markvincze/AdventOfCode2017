@@ -98,7 +98,7 @@ let rec proc pcnt0 pcnt1 acc =
     | _, _ -> (res0, res1, acc)
 
 [<EntryPoint>]
-let main argv = 
+let main argv =
     let endState = proc 0 0 0
     printfn "The end state: %s" (endState.ToString())
     0

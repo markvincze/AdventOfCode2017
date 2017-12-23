@@ -22,7 +22,7 @@ type VirusState = {
 }
 
 let map = Array.init
-            1000 
+            1000
             (fun i -> Array.init
                         1000
                         (fun j -> if i >= 487 && i <= 511 && j >= 487 && j <= 511
@@ -73,7 +73,7 @@ let changeDir node dir = match node with
 let step (map : NodeState[][]) state =
     let (x, y) = state.Position
     let newDir = changeDir map.[y].[x] state.Direction
-    
+
     map.[y].[x] <- evolve map.[y].[x]
     let causedInfection = map.[y].[x] = Infected
 

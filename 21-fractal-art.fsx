@@ -1,10 +1,6 @@
 open System.IO
 open System.Text.RegularExpressions
 
-let input =
-    "../.# => ##./#../...\n\
-    .#./..#/### => #..#/..../..../#..#"
-
 type Image = bool[][]
 
 type Rule = {
@@ -13,7 +9,7 @@ type Rule = {
 }
 
 let parseLine line =
-    let reg = new Regex("^(.*) => (.*)$")
+    let reg = Regex("^(.*) => (.*)$")
     let regMatch = reg.Match(line);
 
     let inputStr = regMatch.Groups.[1].Value
@@ -122,7 +118,7 @@ let main argv =
         printfn "Final image:\r\n%A" after5
 
         after5
-        |> Array.sumBy (fun l -> Seq.filter (fun p -> p) l |> Seq.length)
+        |> Array.sumBy (fun l -> Seq.filter id l |> Seq.length)
         |> printfn "Number of pixels \"on\": %d"
         
         let sw = System.Diagnostics.Stopwatch.StartNew()
@@ -151,7 +147,7 @@ let main argv =
         sw.Stop()
 
         after18
-        |> Array.sumBy (fun l -> Seq.filter (fun p -> p) l |> Seq.length)
+        |> Array.sumBy (fun l -> Seq.filter id l |> Seq.length)
         |> printfn "Number of pixels \"on\": %d"
         
         printfn "Elapsed: %s" (sw.Elapsed.ToString())
